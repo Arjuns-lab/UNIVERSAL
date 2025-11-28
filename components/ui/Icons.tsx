@@ -37,7 +37,8 @@ import {
   FileVideo,
   CloudUpload,
   Loader,
-  SlidersHorizontal
+  SlidersHorizontal,
+  WifiOff
 } from 'lucide-react';
 
 export { 
@@ -78,5 +79,6 @@ export {
   FileVideo,
   CloudUpload,
   Loader,
-  SlidersHorizontal
+  SlidersHorizontal,
+  WifiOff
 };

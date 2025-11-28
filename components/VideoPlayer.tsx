@@ -17,6 +17,7 @@ import {
   SlidersHorizontal,
   Info
 } from './ui/Icons';
+import { downloadVideo, saveVideoMetadata } from '../services/downloadService';
 
 interface VideoPlayerProps {
   src: string;
@@ -55,11 +56,55 @@ const MOCK_CUES: Record<string, { start: number; end: number; text: string }[]> 
     { start: 1, end: 4, text: "[Musique Atmosphérique]" },
     { start: 5, end: 8, text: "Bienvenue sur Universal Movies Hub." },
     { start: 9, end: 12, text: "Où les histoires prennent vie." },
+    { start: 13, end: 17, text: "Vivez le cinéma comme jamais auparavant." },
   ],
   'German': [
     { start: 1, end: 4, text: "[Atmosphärische Musik]" },
     { start: 5, end: 8, text: "Willkommen beim Universal Movies Hub." },
     { start: 9, end: 12, text: "Wo Geschichten lebendig werden." },
+    { start: 13, end: 17, text: "Erleben Sie Kino wie nie zuvor." },
+  ],
+  'Italian': [
+    { start: 1, end: 4, text: "[Musica d'atmosfera]" },
+    { start: 5, end: 8, text: "Benvenuti a Universal Movies Hub." },
+    { start: 9, end: 12, text: "Dove le storie prendono vita." },
+    { start: 13, end: 17, text: "Vivi il cinema come mai prima d'ora." },
+  ],
+  'Portuguese': [
+    { start: 1, end: 4, text: "[Música Atmosférica]" },
+    { start: 5, end: 8, text: "Bem-vindo ao Universal Movies Hub." },
+    { start: 9, end: 12, text: "Onde as histórias ganham vida." },
+    { start: 13, end: 17, text: "Experimente o cinema como nunca antes." },
+  ],
+  'Japanese': [
+    { start: 1, end: 4, text: "[雰囲気のある音楽]" },
+    { start: 5, end: 8, text: "ユニバーサル・ムービーズ・ハブへようこそ。" },
+    { start: 9, end: 12, text: "物語が鮮明に生き返る場所。" },
+    { start: 13, end: 17, text: "これまでにない映画体験を。" },
+  ],
+  'Korean': [
+    { start: 1, end: 4, text: "[분위기 있는 음악]" },
+    { start: 5, end: 8, text: "Universal Movies Hub에 오신 것을 환영합니다." },
+    { start: 9, end: 12, text: "이야기가 생생하게 살아나는 곳." },
+    { start: 13, end: 17, text: "전에 없던 영화 같은 경험을 즐기세요." },
+  ],
+  'Chinese': [
+    { start: 1, end: 4, text: "[大气的音乐]" },
+    { start: 5, end: 8, text: "欢迎来到环球影视中心。" },
+    { start: 9, end: 12, text: "在这里，故事栩栩如生。" },
+    { start: 13, end: 17, text: "体验前所未有的电影。" },
+  ],
+  'Russian': [
+    { start: 1, end: 4, text: "[Атмосферная музыка]" },
+    { start: 5, end: 8, text: "Добро пожаловать в Universal Movies Hub." },
+    { start: 9, end: 12, text: "Где истории оживают." },
+    { start: 13, end: 17, text: "Наслаждайтесь кино как никогда раньше." },
+  ],
+  'Hindi': [
+    { start: 1, end: 4, text: "[वायुमंडलीय संगीत]" },
+    { start: 5, end: 8, text: "यूनिवर्सल मूवीज हब में आपका स्वागत है।" },
+    { start: 9, end: 12, text: "जहां कहानियां जीवंत हो उठती हैं।" },
+    { start: 13, end: 17, text: "सिनेमा का ऐसा अनुभव पहले कभी नहीं किया।" },
   ]
 };
 
@@ -82,6 +127,7 @@ const PlayerControls = ({
   currentSubtitle,
   currentAudioMode,
   isDownloading,
+  downloadProgress,
   title,
   showControls,
   supportsHEVC,
@@ -169,22 +215,24 @@ const PlayerControls = ({
               {isPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" />}
             </button>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <button 
                 onClick={() => onSkip(-10)} 
-                className="text-gray-300 hover:text-white transition-colors relative group/skip flex flex-col items-center justify-center focus-visible:ring-2 focus-visible:ring-primary rounded-lg outline-none p-1"
+                className="text-gray-300 hover:text-white hover:bg-white/10 p-2 rounded-full transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none group relative active:scale-90"
                 aria-label="Skip backward 10 seconds"
+                title="Rewind 10s"
               >
-                <RotateCcw size={22} />
-                <span className="absolute text-[8px] font-bold top-[6px] select-none">10</span>
+                <RotateCcw size={24} className="group-active:-rotate-45 transition-transform" />
+                <span className="absolute inset-0 flex items-center justify-center text-[8px] font-extrabold pt-[1px] select-none">10</span>
               </button>
               <button 
                 onClick={() => onSkip(10)} 
-                className="text-gray-300 hover:text-white transition-colors relative group/skip flex flex-col items-center justify-center focus-visible:ring-2 focus-visible:ring-primary rounded-lg outline-none p-1"
+                className="text-gray-300 hover:text-white hover:bg-white/10 p-2 rounded-full transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none group relative active:scale-90"
                 aria-label="Skip forward 10 seconds"
+                title="Forward 10s"
               >
-                <RotateCw size={22} />
-                <span className="absolute text-[8px] font-bold top-[6px] select-none">10</span>
+                <RotateCw size={24} className="group-active:rotate-45 transition-transform" />
+                <span className="absolute inset-0 flex items-center justify-center text-[8px] font-extrabold pt-[1px] select-none">10</span>
               </button>
             </div>
 
@@ -276,8 +324,8 @@ const PlayerControls = ({
              {/* Subtitles Menu */}
              <div className="relative">
                 {activeMenu === 'subtitles' && (
-                  <div className="absolute bottom-14 left-1/2 -translate-x-1/2 bg-[#1a1a1a]/95 backdrop-blur-md border border-gray-700/50 rounded-lg p-2 min-w-[140px] shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-200 origin-bottom z-30">
-                    <p className="text-xs text-gray-400 font-bold mb-2 px-2 uppercase tracking-wider">Subtitles</p>
+                  <div className="absolute bottom-14 left-1/2 -translate-x-1/2 bg-[#1a1a1a]/95 backdrop-blur-md border border-gray-700/50 rounded-lg p-2 min-w-[140px] max-h-60 overflow-y-auto hide-scrollbar shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-200 origin-bottom z-30">
+                    <p className="text-xs text-gray-400 font-bold mb-2 px-2 uppercase tracking-wider sticky top-0 bg-[#1a1a1a]/95 py-1 z-10">Subtitles</p>
                     {SUBTITLES.map(sub => (
                       <button 
                         key={sub}
@@ -301,14 +349,25 @@ const PlayerControls = ({
              </div>
 
              {/* Download Button */}
-             <button 
-                onClick={onDownload}
-                className={`transition-all duration-200 p-2 rounded-lg ${isDownloading ? 'text-primary bg-primary/10 animate-pulse' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
-                title="Download"
-                aria-label="Download Video"
-             >
-                <Download size={22} />
-             </button>
+             <div className="relative">
+               {isDownloading && downloadProgress < 100 && (
+                 <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black/80 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap">
+                   {Math.round(downloadProgress)}%
+                 </div>
+               )}
+               <button 
+                  onClick={onDownload}
+                  disabled={isDownloading && downloadProgress < 100}
+                  className={`transition-all duration-200 p-2 rounded-lg relative ${isDownloading ? 'text-primary bg-primary/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
+                  title={isDownloading ? "Downloading..." : "Download for Offline"}
+                  aria-label="Download Video"
+               >
+                  <Download size={22} className={isDownloading ? 'animate-pulse' : ''} />
+                  {isDownloading && downloadProgress < 100 && (
+                    <div className="absolute bottom-0 left-0 h-1 bg-primary rounded-b-lg transition-all duration-300" style={{ width: `${downloadProgress}%` }} />
+                  )}
+               </button>
+             </div>
 
              {/* Quality Settings */}
              <div className="relative">
@@ -383,7 +442,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, title, on
   const [currentAudioMode, setCurrentAudioMode] = useState('Standard');
   const [activeSubtitleText, setActiveSubtitleText] = useState('');
   const [isHoveringControls, setIsHoveringControls] = useState(false);
+  
+  // Download State
   const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   // Check Codec Support
   useEffect(() => {
@@ -631,6 +693,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, title, on
     setCurrentSubtitle(sub); 
     setActiveMenu('none');
     
+    // Immediately update subtitle text
     if (sub === 'Off') {
       setActiveSubtitleText('');
     } else if (videoRef.current && MOCK_CUES[sub]) {
@@ -680,19 +743,59 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, title, on
     setActiveMenu('none');
   };
 
-  const handleDownload = (e: React.MouseEvent) => {
+  const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsDownloading(true);
-    setTimeout(() => setIsDownloading(false), 1500);
+    if (isDownloading) return;
 
-    const link = document.createElement('a');
-    link.href = src;
-    const sanitizedTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    link.download = `${sanitizedTitle}.mp4`;
-    link.target = "_blank"; 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    setIsDownloading(true);
+    setDownloadProgress(0);
+
+    // If local blob, just do the progress animation then "finish"
+    if (src.startsWith('blob:')) {
+       // Mock progress for local file
+       const interval = setInterval(() => {
+         setDownloadProgress(prev => {
+           if (prev >= 100) {
+             clearInterval(interval);
+             // Store metadata so it appears in Downloads
+             saveVideoMetadata({
+               id: Date.now().toString(),
+               title: title,
+               posterUrl: poster,
+               duration: formatTime(duration),
+               size: 'Local File',
+               downloadedAt: new Date().toISOString(),
+               blobId: src // Just store the URL for now, though persistence is tricky for blobs across reloads without cache API
+             });
+             setTimeout(() => setIsDownloading(false), 1000);
+             return 100;
+           }
+           return prev + 10;
+         });
+       }, 200);
+       return;
+    }
+
+    try {
+      await downloadVideo(
+        src, 
+        {
+          id: Date.now().toString(),
+          title: title,
+          posterUrl: poster,
+          duration: formatTime(duration),
+          size: 'Unknown', // Will be updated by service if possible
+          downloadedAt: new Date().toISOString()
+        },
+        (progress) => setDownloadProgress(progress)
+      );
+      // Wait a moment before resetting state
+      setTimeout(() => setIsDownloading(false), 1500);
+    } catch (err) {
+      console.error("Download failed:", err);
+      setIsDownloading(false);
+      setDownloadProgress(0);
+    }
   };
 
   const formatTime = (time: number) => {
@@ -765,6 +868,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, title, on
           currentSubtitle={currentSubtitle}
           currentAudioMode={currentAudioMode}
           isDownloading={isDownloading}
+          downloadProgress={downloadProgress}
           title={title}
           showControls={showControls}
           supportsHEVC={supportsHEVC}

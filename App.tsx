@@ -12,11 +12,15 @@ import {
   LogOut, 
   LayoutDashboard, 
   Bot,
-  X
+  X,
+  ArrowLeft,
+  Trash2,
+  WifiOff
 } from './components/ui/Icons';
 import { VideoPlayer } from './components/VideoPlayer';
 import { AdminPanel } from './components/AdminPanel';
 import { getMovieRecommendation } from './services/geminiService';
+import { getDownloadedVideos, removeDownloadedVideo, getVideoFromCache } from './services/downloadService';
 
 // --- Sub-Components defined here to simplify file structure for the prompt ---
 
@@ -61,6 +65,59 @@ const MovieRow: React.FC<{ title: string; movies: Movie[]; onMovieClick: (m: Mov
 );
 
 // --- Pages ---
+
+const DownloadsPage = () => {
+  const [videos, setVideos] = useState(getDownloadedVideos());
+  const navigate = useNavigate();
+
+  const handleRemove = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    await removeDownloadedVideo(id);
+    setVideos(getDownloadedVideos());
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] p-8">
+      <div className="flex items-center mb-6">
+        <button onClick={() => navigate('/')} className="mr-4 text-white hover:text-gray-300">
+           <ArrowLeft size={24} />
+        </button>
+        <h1 className="text-2xl font-bold text-white flex items-center">
+          <WifiOff size={28} className="mr-3 text-gray-400" />
+          Offline Downloads
+        </h1>
+      </div>
+      
+      {videos.length === 0 ? (
+        <div className="text-center text-gray-500 mt-20">
+          <p>No videos downloaded for offline viewing.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {videos.map(v => (
+            <div key={v.id} onClick={() => navigate(`/watch/offline-${v.id}`)} className="bg-card rounded-lg overflow-hidden cursor-pointer group hover:scale-105 transition-transform border border-gray-800">
+               <div className="relative h-40">
+                 <img src={v.posterUrl} className="w-full h-full object-cover" alt={v.title} />
+                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Play size={32} className="text-white fill-white" />
+                 </div>
+               </div>
+               <div className="p-3">
+                 <h3 className="text-white font-bold text-sm truncate">{v.title}</h3>
+                 <div className="flex justify-between items-center mt-2">
+                    <span className="text-xs text-gray-400">{v.size} • {v.duration}</span>
+                    <button onClick={(e) => handleRemove(e, v.id)} className="text-red-500 hover:text-red-400 p-1 rounded hover:bg-white/10" title="Delete Download">
+                      <Trash2 size={16} />
+                    </button>
+                 </div>
+               </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Home = ({ movies, onPlay, user }: { movies: Movie[], onPlay: (id: string) => void, user: User }) => {
   const [featured, setFeatured] = useState<Movie>(movies[0]);
@@ -118,6 +175,13 @@ const Home = ({ movies, onPlay, user }: { movies: Movie[], onPlay: (id: string) 
                    <p className="text-sm font-medium text-gray-400 truncate">{user.name}</p>
                  </div>
                  
+                 <button
+                    onClick={() => navigate('/downloads')}
+                    className="text-gray-300 hover:bg-gray-800 hover:text-white block w-full text-left px-4 py-2 text-sm flex items-center transition-colors"
+                 >
+                    <WifiOff size={16} className="mr-2" /> Offline Downloads
+                 </button>
+
                  {user.role === 'admin' && (
                    <button
                      onClick={() => navigate('/admin')}
@@ -285,6 +349,7 @@ const App: React.FC = () => {
                 <Navigate to="/" />
              )
           } />
+          <Route path="/downloads" element={<DownloadsPage />} />
           <Route path="/watch/:id" element={<WatchPage movies={movies} />} />
         </Routes>
       </div>
@@ -295,8 +360,30 @@ const App: React.FC = () => {
 const WatchPage = ({ movies }: { movies: Movie[] }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [offlineSrc, setOfflineSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (id?.startsWith('offline-')) {
+        const realId = id.replace('offline-', '');
+        getVideoFromCache(realId).then(url => {
+            if(url) setOfflineSrc(url);
+        });
+    }
+  }, [id]);
   
   const movie = movies.find(m => m.id === id);
+
+  if (id?.startsWith('offline-') && offlineSrc) {
+     const vidData = getDownloadedVideos().find(v => v.id === id.replace('offline-', ''));
+     return (
+        <VideoPlayer 
+          src={offlineSrc} 
+          poster={vidData?.posterUrl || ''} 
+          title={vidData?.title || 'Offline Video'}
+          onBack={() => navigate('/downloads')} 
+        />
+     );
+  }
 
   if (!movie) return <div className="flex h-screen items-center justify-center text-xl text-gray-500">Movie not found</div>;
 

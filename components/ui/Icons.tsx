@@ -1,3 +1,4 @@
+
 import { 
   Play, 
   Info, 
@@ -31,7 +32,12 @@ import {
   ArrowLeft,
   Download,
   Gauge,
-  LayoutGrid
+  LayoutGrid,
+  Image,
+  FileVideo,
+  CloudUpload,
+  Loader,
+  SlidersHorizontal
 } from 'lucide-react';
 
 export { 
@@ -67,5 +73,10 @@ export {
   ArrowLeft,
   Download,
   Gauge,
-  LayoutGrid
+  LayoutGrid,
+  Image,
+  FileVideo,
+  CloudUpload,
+  Loader,
+  SlidersHorizontal
 };

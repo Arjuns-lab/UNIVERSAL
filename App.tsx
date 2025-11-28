@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, useNavigate, Navigate, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useNavigate, Navigate, useLocation, useParams } from 'react-router-dom';
 import { MOCK_MOVIES, MOCK_ANALYTICS } from './constants';
 import { Movie, User, ViewMode } from './types';
 import { 
@@ -292,21 +293,12 @@ const App: React.FC = () => {
 };
 
 const WatchPage = ({ movies }: { movies: Movie[] }) => {
-  const { id } = React.useMemo(() => {
-     // rudimentary router hook usage simulation
-     const hash = window.location.hash;
-     const id = hash.split('/')[2];
-     return { id };
-  }, [window.location.hash]); // This won't actually trigger re-render on hash change in this snippet, using router params below
-
-  // Real Router params approach
-  const params = useLocation();
-  // We use a small hack to get ID since standard router params might be tricky in this single file setup
-  const movieId = params.pathname.split('/').pop() || id;
-  const movie = movies.find(m => m.id === movieId);
+  const { id } = useParams();
   const navigate = useNavigate();
+  
+  const movie = movies.find(m => m.id === id);
 
-  if (!movie) return <div className="flex h-screen items-center justify-center">Movie not found</div>;
+  if (!movie) return <div className="flex h-screen items-center justify-center text-xl text-gray-500">Movie not found</div>;
 
   return (
     <VideoPlayer 

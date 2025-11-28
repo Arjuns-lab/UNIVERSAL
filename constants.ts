@@ -1,3 +1,4 @@
+
 import { Movie, AnalyticsData } from './types';
 
 export const MOCK_MOVIES: Movie[] = [
@@ -7,7 +8,7 @@ export const MOCK_MOVIES: Movie[] = [
     description: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival.',
     posterUrl: 'https://picsum.photos/300/450?random=1',
     bannerUrl: 'https://picsum.photos/1200/600?random=1',
-    videoUrl: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     duration: '2h 49m',
     year: 2014,
     rating: 'PG-13',
@@ -20,7 +21,7 @@ export const MOCK_MOVIES: Movie[] = [
     description: 'In a future world where technology exists in harmony with society, a hacker discovers a conspiracy.',
     posterUrl: 'https://picsum.photos/300/450?random=2',
     bannerUrl: 'https://picsum.photos/1200/600?random=2',
-    videoUrl: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
     duration: '1h 55m',
     year: 2077,
     rating: 'R',
@@ -33,7 +34,7 @@ export const MOCK_MOVIES: Movie[] = [
     description: 'A historical drama about the unification of a fractured kingdom.',
     posterUrl: 'https://picsum.photos/300/450?random=3',
     bannerUrl: 'https://picsum.photos/1200/600?random=3',
-    videoUrl: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
     duration: '2h 10m',
     year: 2023,
     rating: 'TV-MA',
@@ -46,7 +47,7 @@ export const MOCK_MOVIES: Movie[] = [
     description: 'Documentary exploring the deepest parts of the ocean never seen before.',
     posterUrl: 'https://picsum.photos/300/450?random=4',
     bannerUrl: 'https://picsum.photos/1200/600?random=4',
-    videoUrl: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
     duration: '1h 30m',
     year: 2024,
     rating: 'G',
@@ -59,7 +60,7 @@ export const MOCK_MOVIES: Movie[] = [
     description: 'A group of elite thieves plan the biggest bank robbery in history.',
     posterUrl: 'https://picsum.photos/300/450?random=5',
     bannerUrl: 'https://picsum.photos/1200/600?random=5',
-    videoUrl: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
     duration: '2h 05m',
     year: 2022,
     rating: 'R',
